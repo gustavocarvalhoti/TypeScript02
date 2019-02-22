@@ -1,0 +1,135 @@
+**********************************************************************************************************
+#Comandos Node;js
+**********************************************************************************************************
+#Gerar o arquivo package.json
+Acessar a pasta alurabank e dar enter para todas as perguntas
+npm init
+
+#Instalando o TypeScript
+npm install typescript@2.3.2 --save-dev
+Dentro de instantes ele será instalado dentro da pasta alurabank/node_modules
+
+#Comandos npm
+npm install
+npm run compile
+npm start
+npm run server
+
+#TypeScript Declaration File.
+Este arquivo possui informações dos nomes de métodos e funções, inclusive tipos que podem ser utilizados pelo TypeScript.
+Quando carregado, o TypeScript conseguirá, baseado nesse arquivo, realizar checagem estática inclusive
+lançar mão de todos seu poder através de seu editor ou IDE favorita.
+npm install @types/jquery@2.0.42 --save-dev
+
+#Lite-server - livereloading (TOP)
+npm install lite-server@2.3.0 --save-dev
+//Iniciando o server e fazendo rebuild
+"server": "lite-server --baseDir=app"
+
+#Para rodar 2 comandos do node ao mesmo tempo
+npm install concurrently@3.4.0 --save-dev
+//Assim, agora o npm start roda os 2
+"start": "concurrently \"npm run watch\" \"npm run server\""
+
+**********************************************************************************************************
+#Compilador
+Precisamos criar o arquivo alurabank/tsconfig.json que guardará as configurações do nosso compilador
+
+**********************************************************************************************************
+#tsconfig.json
+{
+  "compilerOptions" : {
+    "target" : "es6",
+    "outDir" : "app/js",
+    "noEmitOnError": true,          -> Se estiver com erro não gera o .js
+    "noImplicitAny" : true,         -> Força a explicitar a tipagem
+    "removeComments" : true,        -> TOP
+    "module": "system"              -> Para carregar os modulos (Carregador universal) ***
+  },
+  "include" : [
+    "app/ts/**/*"
+  ]
+}
+
+*** Precisa colcar isso na Index - Precisa do Ajax para rodar esse, precisa estar no servidor
+<!--Loader - Para carregar todos os modulos-->
+<script src="lib/system.js"></script>
+<script>
+  System.defaultJSExtensions = true;
+  System.import('js/app.js').catch(err => console.error(err));
+</script>
+
+
+**********************************************************************************************************
+#package.json
+{
+  "name": "alurabank",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "tsc",                                       -> Tipo de compilação
+    "start": "tsc -w"                                       -> Automatizar o processo de compilação
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^2.3.2"
+  }
+}
+
+
+**********************************************************************************************************
+#Herança
+alurabank/app/ts/views/View.ts - Pai
+abstract class View<T> {
+  private _elemento: Element;
+  constructor(seletor: string) {
+    this._elemento = document.querySelector(seletor);
+  }
+  update(model: T) {
+    this._elemento.innerHTML = this.template(model);
+  }
+  abstract template(model: T): string;
+}
+
+alurabank/app/ts/views/MensagemView.ts - Filho
+class MensagemView extends View<string> {
+  // Override na function template
+  template(model: string): string {
+    return `<p class="alert alert-info">${model}</p>`;
+  }
+}
+
+**********************************************************************************************************
+# Organizando módulos em barris (Agora a index acessa todos os caras)
+Criei o arquivo alurabank/app/ts/models/index.ts que exporta os outros arquivos
+// Exporta tudo
+export * from './Negociacao';
+export * from './Negociacoes';
+// Para utilizar vc pode chamar assim agora:
+import {Negociacao, Negociacoes} from "../models/index";
+
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
+**********************************************************************************************************
