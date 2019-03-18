@@ -31,6 +31,10 @@ npm install concurrently@3.4.0 --save-dev
 //Assim, agora o npm start roda os 2
 "start": "concurrently \"npm run watch\" \"npm run server\""
 
+#Ligando o servidor da API
+cd /home/gusilva/Projects/TypeScript02/api
+npm start
+
 **********************************************************************************************************
 #Compilador
 Precisamos criar o arquivo alurabank/tsconfig.json que guardará as configurações do nosso compilador
