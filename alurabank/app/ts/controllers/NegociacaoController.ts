@@ -1,7 +1,8 @@
 import {NegociacoesView, MensagemView} from '../views/index';
 import {Negociacao, Negociacoes} from '../models/index';
-//import {logarTempoDeExecucao} from '../helpers/decorators/index';
-import {domInject} from '../helpers/decorators/index';
+import {domInject, throttle} from '../helpers/decorators/index';
+import {NegociacaoParcial} from '../models/index';
+import {NegociacaoService} from '../services/index';
 
 export class NegociacaoController {
 
@@ -15,15 +16,18 @@ export class NegociacaoController {
   // Carrega só quando vai utilizar
   @domInject('#data')
   private _inputData: JQuery;
+
   @domInject('#quantidade')
   private _inputQuantidade: JQuery;
+
   @domInject('#valor')
   private _inputValor: JQuery;
 
-
   private _negociacoes = new Negociacoes();
-  private _negociacoesView = new NegociacoesView('#negociacoesView', true);
-  private _mensagemView = new MensagemView('#mensagemView', true);
+  private _negociacoesView = new NegociacoesView('#negociacoesView');
+  private _mensagemView = new MensagemView('#mensagemView');
+
+  private _service = new NegociacaoService();
 
   constructor() {
     // Pesquisa no DOM - Carrega tudo no Construtor
@@ -36,10 +40,8 @@ export class NegociacaoController {
     this._negociacoesView.update(this._negociacoes);
   }
 
-  //@logarTempoDeExecucao(true)
-  adiciona(event: Event) {
-    event.preventDefault();
-
+  @throttle()
+  adiciona() {
     let data = new Date(this._inputData.val().replace(/-/g, ','));
 
     if (!this._ehDiaUtil(data)) {
@@ -54,44 +56,42 @@ export class NegociacaoController {
     );
 
     this._negociacoes.adiciona(negociacao);
+
     this._negociacoesView.update(this._negociacoes);
     this._mensagemView.update('Negociação adicionada com sucesso!');
   }
 
-  importarDados() {
-    function isOK(res: Response) {
+  private _ehDiaUtil(data: Date) {
+    return data.getDay() != DiaDaSemana.Sabado && data.getDay() != DiaDaSemana.Domingo;
+  }
+
+  @throttle()
+  importaDados() {
+    this._service
+    .obterNegociacoes(res => {
+
       if (res.ok) {
         return res;
       } else {
         throw new Error(res.statusText);
       }
-    }
-
-    fetch('http://localhost:8080/dados')
-    .then(res => isOK(res))
-    .then(res => res.json())
-    .then((dados: any[]) => {
-      dados
-      .map(dado => new Negociacao(new Date(), dado.vezes, dado.montante))
-      .forEach(negociacao => this._negociacoes.adiciona(negociacao));
-      this._negociacoesView.update(this._negociacoes);
     })
-    .catch(err => console.log(err.message));
-  }
+    .then(negociacoes => {
 
-  private _ehDiaUtil(data: Date) {
-    // Dia da semana - (0 - Domingo, 6 - Sábado)
-    return data.getDay() != DiaDaSemana.SABADO && data.getDay() != DiaDaSemana.DOMINGO;
+      negociacoes.forEach(negociacao => this._negociacoes.adiciona(negociacao));
+
+      this._negociacoesView.update(this._negociacoes);
+    });
   }
 }
 
-// Por default ele pega 0, 1, 2 ... 6
 enum DiaDaSemana {
-  DOMINGO,
-  SEGUNDA,
-  TERCA,
-  QUARTA,
-  QUINTA,
-  SEXTA,
-  SABADO
+
+  Domingo,
+  Segunda,
+  Terca,
+  Quarta,
+  Quinta,
+  Sexta,
+  Sabado
 }

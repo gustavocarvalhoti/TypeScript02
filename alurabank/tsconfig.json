@@ -7,7 +7,7 @@
     "removeComments" : true,
     "module" : "system",
     "strictNullChecks" : true,
-    "experimentalDecorators": true
+    "experimentalDecorators" : true
   },
   "include" : [
     "app/ts/**/*"
